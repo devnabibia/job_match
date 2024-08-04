@@ -1,0 +1,71 @@
+service: job-matching-platform
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  environment:
+    JOBS_TABLE: JobsTable
+    APPLICATIONS_TABLE: ApplicationsTable
+    TWILIO_ACCOUNT_SID: your_twilio_account_sid
+    TWILIO_AUTH_TOKEN: your_twilio_auth_token
+    TWILIO_PHONE_NUMBER: your_twilio_phone_number
+
+functions:
+  createJobPost:
+    handler: createJobPost.handler
+    events:
+      - http:
+          path: jobs
+          method: post
+
+  searchJobs:
+    handler: searchJobs.handler
+    events:
+      - http:
+          path: jobs
+          method: get
+
+  applyJob:
+    handler: applyJob.handler
+    events:
+      - http:
+          path: applications
+          method: post
+
+  sendSMSNotification:
+    handler: sendSMSNotification.handler
+    events:
+      - http:
+          path: notifications
+          method: post
+
+resources:
+  Resources:
+    JobsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: JobsTable
+        AttributeDefinitions:
+          - AttributeName: jobId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: jobId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+    ApplicationsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ApplicationsTable
+        AttributeDefinitions:
+          - AttributeName: applicationId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: applicationId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
